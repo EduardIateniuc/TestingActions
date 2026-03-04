@@ -1,149 +1,200 @@
 package org.example.pom;
 
-import org.example.utils.Utils;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
+import io.qameta.allure.Step;
+import org.example.utils.StepScreenshots;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
 
 public class FormPom {
+    private static final Logger log = LoggerFactory.getLogger(FormPom.class);
 
-    static public WebDriver driver;
-    static public JavascriptExecutor js;
+    private final WebDriver driver;
+    private final JavascriptExecutor js;
+    private final WebDriverWait wait;
 
-    @FindBy(xpath = "//*[text()='Forms']")
-    WebElement forms;
+    private final By formsCard = By.xpath("//*[text()='Forms']");
+    private final By practiceFormMenu = By.xpath("//*[text()='Practice Form']");
 
-    @FindBy(xpath = "//*[text()='Practice Form']")
-    WebElement practiceForm;
-
-    @FindBy(xpath = "//*[@id='firstName']")
-    WebElement firstName;
-
-    @FindBy(xpath = "//*[@id='lastName']")
-    WebElement lastName;
-
-    @FindBy(xpath = "//*[@id='userEmail']")
-    WebElement userEmail;
-
-    @FindBy(xpath = "//*[@id='userNumber']")
-    WebElement userNumber;
-
-    @FindBy(xpath = "//*[@id='dateOfBirthInput']")
-    WebElement dateOfBirthInput;
-
-    @FindBy(xpath = "//*[@id='subjectsInput']")
-    WebElement subjectsInput;
-
-    @FindBy(xpath = "//*[@id='state']")
-    WebElement state;
-
-    @FindBy(xpath = "//*[@id='city']")
-    WebElement city;
-
-    @FindBy(xpath = "//*[@id='submit']")
-    WebElement submit;
+    private final By firstName = By.id("firstName");
+    private final By lastName = By.id("lastName");
+    private final By userEmail = By.id("userEmail");
+    private final By userNumber = By.id("userNumber");
+    private final By dateOfBirthInput = By.id("dateOfBirthInput");
+    private final By subjectsInput = By.id("subjectsInput");
+    private final By uploadPicture = By.id("uploadPicture");
+    private final By currentAddress = By.id("currentAddress");
+    private final By stateContainer = By.id("state");
+    private final By cityContainer = By.id("city");
+    private final By submitButton = By.id("submit");
+    private final By modalTitle = By.id("example-modal-sizes-title-lg");
 
     public FormPom(WebDriver driverParam) {
-        driver = driverParam;
-        js = (JavascriptExecutor) driver;
-        PageFactory.initElements(driver, this);
+        this.driver = driverParam;
+        this.js = (JavascriptExecutor) driverParam;
+        this.wait = new WebDriverWait(driverParam, Duration.ofSeconds(15));
     }
 
-    public String getTableDataByLabel(String labelParam) {
-        WebElement data = driver.findElement(By.xpath("//table//*[text()='" + labelParam  + "']/../*[2]"));
-        return data.getText();
+    @Step("Open Practice Form page")
+    public void openPracticeForm() {
+        StepScreenshots.before(driver, "Open Practice Form");
+        log.info("Opening Practice Form");
+        wait.until(ExpectedConditions.elementToBeClickable(formsCard)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(practiceFormMenu)).click();
+        closeAdvert();
+        StepScreenshots.after(driver, "Open Practice Form");
     }
 
-    public void clickSubmit() {
-        submit.click();
+    @Step("Set first name: {value}")
+    public void setFirstName(String value) {
+        StepScreenshots.before(driver, "Set first name");
+        type(firstName, value);
+        StepScreenshots.after(driver, "Set first name");
     }
 
-    public void setCity(String cityParam) {
-        city.click();
-        WebElement ddSCity = city.findElement(By.xpath("//*[text()='" + cityParam  + "']"));
-        ddSCity.click();
+    @Step("Set last name: {value}")
+    public void setLastName(String value) {
+        StepScreenshots.before(driver, "Set last name");
+        type(lastName, value);
+        StepScreenshots.after(driver, "Set last name");
     }
 
-    public void setState(String stateParam) {
-        state.click();
-        WebElement ddState = state.findElement(By.xpath("//*[text()='" + stateParam  + "']"));
-//        Utils.explicitWait(driver, ExpectedConditions.elementToBeClickable(ddState), 10);
-        pause(1000);
-        ddState.click();
+    @Step("Set email: {value}")
+    public void setEmail(String value) {
+        StepScreenshots.before(driver, "Set email");
+        type(userEmail, value);
+        StepScreenshots.after(driver, "Set email");
     }
 
-    public void setHobby(String hobbyParam) {
-        WebElement hobby = driver.findElement(By.xpath("//*[@id='hobbiesWrapper']//label[text()='" + hobbyParam + "']/../input"));
-        hobby.sendKeys(" ");
+    @Step("Select gender: {gender}")
+    public void setGender(String gender) {
+        StepScreenshots.before(driver, "Select gender");
+        log.info("Setting gender: {}", gender);
+        By genderLocator = By.xpath("//*[@id='genterWrapper']//label[text()='" + gender + "']");
+        wait.until(ExpectedConditions.elementToBeClickable(genderLocator)).click();
+        StepScreenshots.after(driver, "Select gender");
     }
 
-    public void setSubject(String subjectParam) {
-        subjectsInput.sendKeys(subjectParam);
-        subjectsInput.sendKeys(Keys.ENTER);
+    @Step("Set mobile: {value}")
+    public void setMobile(String value) {
+        StepScreenshots.before(driver, "Set mobile");
+        type(userNumber, value);
+        StepScreenshots.after(driver, "Set mobile");
     }
 
-    public void setDate(String dateParam) {
-        dateOfBirthInput.sendKeys(Keys.CONTROL, "a");
-        dateOfBirthInput.sendKeys(dateParam);
-        dateOfBirthInput.sendKeys(Keys.ENTER);
+    @Step("Set date of birth: {day} {month} {year}")
+    public void setDateOfBirth(int day, String month, String year) {
+        StepScreenshots.before(driver, "Set date of birth");
+        log.info("Setting date of birth: {} {} {}", day, month, year);
+        wait.until(ExpectedConditions.elementToBeClickable(dateOfBirthInput)).click();
+        new Select(wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("react-datepicker__month-select"))))
+                .selectByVisibleText(month);
+        new Select(wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("react-datepicker__year-select"))))
+                .selectByVisibleText(year);
+
+        By dayLocator = By.xpath("//div[contains(@class,'react-datepicker__day') and not(contains(@class,'react-datepicker__day--outside-month')) and text()='" + day + "']");
+        wait.until(ExpectedConditions.elementToBeClickable(dayLocator)).click();
+        StepScreenshots.after(driver, "Set date of birth");
     }
 
-    public void setNumber(String numberParam) {
-        userNumber.clear();
-        userNumber.sendKeys(numberParam);
+    @Step("Set subject: {subject}")
+    public void setSubject(String subject) {
+        StepScreenshots.before(driver, "Set subject");
+        log.info("Adding subject: {}", subject);
+        WebElement input = wait.until(ExpectedConditions.elementToBeClickable(subjectsInput));
+        input.sendKeys(subject);
+        input.sendKeys(Keys.ENTER);
+        StepScreenshots.after(driver, "Set subject");
     }
 
-    public void setGender(String genderParam) {
-        WebElement gender = driver.findElement(By.xpath("//*[@id='genterWrapper']//label[text()='" + genderParam + "']"));
-        gender.click();
+    @Step("Select hobby: {hobby}")
+    public void setHobby(String hobby) {
+        StepScreenshots.before(driver, "Select hobby");
+        log.info("Selecting hobby: {}", hobby);
+        By hobbyLocator = By.xpath("//*[@id='hobbiesWrapper']//label[text()='" + hobby + "']");
+        wait.until(ExpectedConditions.elementToBeClickable(hobbyLocator)).click();
+        StepScreenshots.after(driver, "Select hobby");
     }
 
-    public void setEmail(String emailParam) {
-        userEmail.clear();
-        userEmail.sendKeys(emailParam);
+    @Step("Upload picture: {absolutePath}")
+    public void uploadPicture(String absolutePath) {
+        StepScreenshots.before(driver, "Upload picture");
+        log.info("Uploading picture from path: {}", absolutePath);
+        wait.until(ExpectedConditions.presenceOfElementLocated(uploadPicture)).sendKeys(absolutePath);
+        StepScreenshots.after(driver, "Upload picture");
     }
 
-    public void setLastName(String lastNameParam) {
-        lastName.clear();
-        lastName.sendKeys(lastNameParam);
+    @Step("Set current address: {value}")
+    public void setCurrentAddress(String value) {
+        StepScreenshots.before(driver, "Set current address");
+        type(currentAddress, value);
+        StepScreenshots.after(driver, "Set current address");
     }
 
-    public void setFirstName(String firstNameParam) {
-        firstName.clear();
-        firstName.sendKeys(firstNameParam);
+    @Step("Set state and city: {state} / {city}")
+    public void setStateAndCity(String state, String city) {
+        StepScreenshots.before(driver, "Set state and city");
+        log.info("Setting state and city: {} / {}", state, city);
+        wait.until(ExpectedConditions.elementToBeClickable(stateContainer)).click();
+        WebElement stateInput = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("react-select-3-input")));
+        stateInput.sendKeys(state);
+        stateInput.sendKeys(Keys.ENTER);
+
+        wait.until(ExpectedConditions.elementToBeClickable(cityContainer)).click();
+        WebElement cityInput = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("react-select-4-input")));
+        cityInput.sendKeys(city);
+        cityInput.sendKeys(Keys.ENTER);
+        StepScreenshots.after(driver, "Set state and city");
     }
 
-    public void clickPracticeForm() {
-        Utils.explicitWait(driver, ExpectedConditions.visibilityOf(practiceForm), 10);
-        practiceForm.click();
+    @Step("Submit form")
+    public void submit() {
+        StepScreenshots.before(driver, "Submit form");
+        log.info("Submitting form");
+        WebElement button = wait.until(ExpectedConditions.elementToBeClickable(submitButton));
+        js.executeScript("arguments[0].scrollIntoView({block: 'center'});", button);
+        button.click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(modalTitle));
+        log.info("Submission modal is visible");
+        StepScreenshots.after(driver, "Submit form");
     }
 
-    public void clickForms() {
-        forms.click();
-    }
-
-    public void pause(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void scrollToElement(WebElement element) {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("arguments[0].scrollIntoView(true);", element);
+    @Step("Read submitted value for field: {label}")
+    public String getSubmittedValue(String label) {
+        StepScreenshots.before(driver, "Read submitted value: " + label);
+        By valueLocator = By.xpath("//td[text()='" + label + "']/following-sibling::td");
+        String value = wait.until(ExpectedConditions.visibilityOfElementLocated(valueLocator)).getText().trim();
+        log.info("Submitted value [{}] = {}", label, value);
+        StepScreenshots.after(driver, "Read submitted value: " + label);
+        return value;
     }
 
     public void closeAdvert() {
         try {
             js.executeScript("var elem = document.evaluate(\"//*[@id='adplus-anchor']\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;" +
-                    "elem.parentNode.removeChild(elem);");
-        } catch (Exception ignored) {}
+                    "if (elem && elem.parentNode) { elem.parentNode.removeChild(elem); }");
+        } catch (Exception ignored) {
+        }
         try {
             js.executeScript("var elem = document.evaluate(\"//footer\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;" +
-                    "elem.parentNode.removeChild(elem);");
-        } catch (Exception ignored) {}
+                    "if (elem && elem.parentNode) { elem.parentNode.removeChild(elem); }");
+        } catch (Exception ignored) {
+        }
     }
+
+    private void type(By locator, String value) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        element.clear();
+        element.sendKeys(value);
+    }
+
 }
