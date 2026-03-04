@@ -208,7 +208,8 @@ public class FormPom {
                     "document.querySelectorAll('iframe, footer, #fixedban')" +
                             ".forEach(el => el.remove());"
             );
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private void type(By locator, String value) {
