@@ -18,12 +18,19 @@ import java.util.Map;
 public class Driver {
     private static final Logger log = LoggerFactory.getLogger(Driver.class);
 
-    static public WebDriver getAutoLocalDriver() {
-        log.info("Starting local ChromeDriver via WebDriverManager");
-        WebDriverManager.chromedriver().setup(); // sets up ChromeDriver automatically
-        return new ChromeDriver();
-    }
+    public static WebDriver getAutoLocalDriver() {
 
+        ChromeOptions options = new ChromeOptions();
+
+        if (System.getenv("CI") != null) {
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+            options.addArguments("--window-size=1920,1080");
+        }
+
+        return new ChromeDriver(options);
+    }
     static public WebDriver getLocalDriver() {
         System.setProperty("webdriver.chrome.driver", "C:\\Users\\User\\Downloads\\chromedriver-win64");
         ChromeOptions options = new ChromeOptions();
