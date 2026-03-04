@@ -13,6 +13,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.time.Duration;
 
 public class FormPom {
@@ -125,11 +126,19 @@ public class FormPom {
         StepScreenshots.after(driver, "Select hobby");
     }
 
-    @Step("Upload picture: {absolutePath}")
-    public void uploadPicture(String absolutePath) {
+    @Step("Upload picture: {fileName}")
+    public void uploadPicture(String fileName) {
         StepScreenshots.before(driver, "Upload picture");
-        log.info("Uploading picture from path: {}", absolutePath);
-        wait.until(ExpectedConditions.presenceOfElementLocated(uploadPicture)).sendKeys(absolutePath);
+
+        File file = new File("src/test/resources/test-data/" + fileName);
+
+        if (!file.exists()) {
+            throw new RuntimeException("File not found: " + file.getAbsolutePath());
+        }
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(uploadPicture))
+                .sendKeys(file.getAbsolutePath());
+
         StepScreenshots.after(driver, "Upload picture");
     }
 

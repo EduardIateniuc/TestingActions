@@ -15,8 +15,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class FormTest {
 
@@ -29,9 +31,9 @@ public class FormTest {
     static public String EMAIL = "eduardaceman@gmail.com";
     static public String GENDER = "Male";
     static public String MOBILE = "0683934022";
-    static public int BIRTH_DAY = 17;
-    static public String BIRTH_MONTH = "July";
-    static public String BIRTH_YEAR = "2006";
+    static public int BIRTH_DAY = 01;
+    static public String BIRTH_MONTH = "January";
+    static public String BIRTH_YEAR = "2000";
     static public String SUBJECT = "Maths";
     static public String STATE = "Haryana";
     static public String ADDRESS = "Chisinau, Test street 10";
@@ -70,10 +72,7 @@ public class FormTest {
         formPom.setSubject(SUBJECT);
         formPom.setHobby(HOBBY);
 
-        String picturePath = Path.of("src", "test", "resources", "test-data", PICTURE_NAME)
-                .toAbsolutePath()
-                .toString();
-        formPom.uploadPicture(picturePath);
+        formPom.uploadPicture(PICTURE_NAME);
 
         formPom.setCurrentAddress(ADDRESS);
         formPom.setStateAndCity(STATE, CITY);
